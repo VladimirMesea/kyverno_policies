@@ -1,6 +1,6 @@
 apiVersion: v3
 description: "Helm Chart for installing general applicable Kubernetes policies."
-name: kyverno-policies
+name: kyverno_policies
 version: 1.0.0
 appVersion: "1.0"
 dependencies:
