@@ -1,0 +1,86 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: mutate-pod-security-standards
+  annotations:
+    pod-policies.kyverno.io/autogen-controllers: DaemonSet,Deployment,StatefulSet
+    policies.kyverno.io/title: Mutate Kubernetes Security
+    policies.kyverno.io/category: Best Practices
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Pod
+    policies.kyverno.io/description: >-
+      Pod Security Standards define the fields and their options which
+      are allowable for Pods to achieve certain security best practices. While
+      these are typically validation policies, workloads will either be accepted or
+      rejected based upon what has already been defined. It is also possible to mutate
+      incoming Pods to achieve the desired PSS level rather than reject. This policy
+      sets all the fields necessary to pass the PSS Restricted profile.
+spec:
+  rules:
+    - name: inject-seccomp
+      exclude:
+        resources:
+          namespaces:
+            - "*-system"
+            - "*-system-*"
+            - "external-secrets"
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              operations:
+                - CREATE
+                - UPDATE
+              namespaceSelector:
+                matchExpressions:
+                  - key: pod-security.kubernetes.io/enforce
+                    operator: In
+                    values:
+                      - restricted
+      mutate:
+        patchStrategicMerge:
+          spec:
+            securityContext:
+              runAsNonRoot: true
+              seccompProfile:
+                type: RuntimeDefault
+            containers:
+              - (name): "?*"
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  capabilities:
+                    drop:
+                      - ALL
+
+    - name: inject-seccomp-initcontainers
+      exclude:
+        resources:
+          namespaces:
+            - "*-system"
+            - "*-system-*"
+            - "external-secrets"
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              operations:
+                - CREATE
+                - UPDATE
+              namespaceSelector:
+                matchExpressions:
+                  - key: pod-security.kubernetes.io/enforce
+                    operator: In
+                    values:
+                      - restricted
+      mutate:
+        patchStrategicMerge:
+          spec:
+            initContainers:
+              - (name): "?*"
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  capabilities:
+                    drop:
+                      - ALL
