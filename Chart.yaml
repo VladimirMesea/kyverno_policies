@@ -1,0 +1,4 @@
+apiVersion: v2
+description: "Helm Chart for installing general applicable Kubernetes policies."
+name: kyverno-policies
+version: 0.1.0
