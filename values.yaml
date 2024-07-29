@@ -1,0 +1,11 @@
+enable:
+  mutate:
+    # enable.mutate.podSecurityStandards -- Enable Security Mutation policies
+    podSecurityStandards: true
+  validate:
+    # enable.certificateParameters -- Enable Certificate parameters validation policy
+    certificateParameters: true
+    # enable.validate.podProbes -- Enable Pod probe validation checks
+    podProbes: true
+    # enable.validate.serviceExternalIps -- Enable Service external ip validation check
+    serviceExternalIps: true
